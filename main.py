@@ -56,9 +56,17 @@ correct_answers = 0
 # Функция для проверки ответа
 def check_answer(answer):
     global correct_answers
-    if answer == current_questions[current_question]['answers'][current_questions[current_question]['correct_index']]:
+    correct_index = current_questions[current_question]['correct_index']
+    if answer == current_questions[current_question]['answers'][correct_index]:
         correct_answers += 1
-    next_question()
+        answer_buttons[correct_index].config(bg='green')  # Подсветим правильный ответ
+    else:
+        answer_buttons[correct_index].config(bg='green')
+        for i, btn in enumerate(answer_buttons):
+            if i != correct_index and btn['text'] == answer:
+                btn.config(bg='red')  # Подсветим неправильный ответ
+
+    root.after(1000, next_question)  # Переходим к следующему вопросу через 1 секунду
 
 # Функция для перехода к следующему вопросу
 def next_question():
@@ -72,20 +80,15 @@ def next_question():
 
 # Функция для отображения результата
 def show_result():
-    global current_question
-    result = messagebox.askyesno('Результат', f'Вы ответили правильно на {correct_answers} из {len(current_questions)} вопросов.\nЖелаете продолжить?')
+    result = messagebox.showinfo('Результат', f'Вы ответили правильно на {correct_answers} из {len(current_questions)} вопросов.')
     if result:
-        current_question = 0
-        choose_test()
-    else:
-        root.destroy()
-
+        root.quit()
 
 # Функция для отображения текущего вопроса и вариантов ответов
 def show_question():
     question_label.config(text=current_questions[current_question]['question'])
     for i, answer in enumerate(current_questions[current_question]['answers']):
-        answer_buttons[i].config(text=answer)
+        answer_buttons[i].config(text=answer, bg='#ce93d8')  # Сбросим цвет кнопок
 
 # Функция для выбора теста
 def choose_test():
