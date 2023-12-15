@@ -72,9 +72,14 @@ def next_question():
 
 # Функция для отображения результата
 def show_result():
-    result = messagebox.showinfo('Результат', f'Вы ответили правильно на {correct_answers} из {len(current_questions)} вопросов.')
+    global current_question
+    result = messagebox.askyesno('Результат', f'Вы ответили правильно на {correct_answers} из {len(current_questions)} вопросов.\nЖелаете продолжить?')
     if result:
-        root.quit()
+        current_question = 0
+        choose_test()
+    else:
+        root.destroy()
+
 
 # Функция для отображения текущего вопроса и вариантов ответов
 def show_question():
