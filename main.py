@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 import random
+import threading
+import time
 
 # Первый набор вопросов и ответов
 questions1 = [
@@ -66,7 +68,9 @@ def check_answer(answer):
             if i != correct_index and btn['text'] == answer:
                 btn.config(bg='red')  # Подсветим неправильный ответ
 
-    root.after(1000, next_question)  # Переходим к следующему вопросу через 1 секунду
+    root.after_cancel(current_timer)  # Отменим текущий таймер
+    next_question()  # Переходим к следующему вопросу
+
 
 # Функция для перехода к следующему вопросу
 def next_question():
@@ -84,11 +88,33 @@ def show_result():
     if result:
         root.quit()
 
+# Добавим новую переменную для отслеживания текущего таймера
+current_timer = None
+
 # Функция для отображения текущего вопроса и вариантов ответов
 def show_question():
     question_label.config(text=current_questions[current_question]['question'])
     for i, answer in enumerate(current_questions[current_question]['answers']):
         answer_buttons[i].config(text=answer, bg='#ce93d8')  # Сбросим цвет кнопок
+
+    start_timer(15)  # Запустим таймер на 10 секунд
+
+# Функция для обработки истечения времени
+def timeout():
+    timer_label.config(text='Время на ответ вышло!')
+    next_question()
+
+# Функция для отсчёта времени
+def start_timer(seconds):
+    global current_timer
+    if current_timer:
+        root.after_cancel(current_timer)  # Отменим предыдущий таймер, если он существует
+    if seconds > 0:
+        timer_label.config(text=f'Осталось времени: {seconds} сек')
+        current_timer = root.after(1000, start_timer, seconds-1)
+    else:
+        timer_label.config(text='Время на ответ вышло!')
+        next_question()
 
 # Функция для выбора теста
 def choose_test():
@@ -109,6 +135,10 @@ root.title('Тренажер по программированию')
 root.configure(bg='#e1bee7')  # Изменим фон окна
 root.option_add('*Font', 'Arial 14 bold')  # Изменим стиль и размер шрифта
 root.protocol("WM_DELETE_WINDOW", on_closing)
+
+# Добавим новый Label для отображения времени
+timer_label = tk.Label(root, text='', font=('Arial', 12), bg='#e1bee7')
+timer_label.pack()
 
 # Рамка для отображения вопроса
 question_frame = tk.Frame(root, bg='#e1bee7')  # Добавим рамку вокруг вопроса
